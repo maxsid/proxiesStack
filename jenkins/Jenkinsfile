@@ -1,0 +1,52 @@
+pipeline {
+  agent any
+  environment {
+    BUILD_DIR  = 'build'
+    DOCKER_REPOSITORY = 'maxsid'
+  }
+  stages {
+    stage('Build') {
+      agent { docker { image 'golang' } }
+      steps {
+        echo "--- Getting Go packages ---"
+        sh "go get github.com/PuerkitoBio/goquery"
+        sh "go get github.com/mediocregopher/radix"
+        echo "--- Build Go ---"
+        sh "go build -o '$BUILD_DIR/proxies-stack'"
+    }
+    stage('Docker Build') {
+      steps {
+        sh "docker build -f docker/Dockerfile -t $DOCKER_REPOSITORY/proxies-stack:$BUILD_NUMBER '$BUILD_DIR'"
+      }
+    }
+    stage('Run Test Environment') {
+      steps {
+        step([$class: 'DockerComposeBuilder',
+                      dockerComposeFile: 'test/docker-compose.yml',
+                      option: [$class: 'StartAllServices'],
+                      useCustomDockerComposeFile: true])
+      }
+    }
+    stage('Test') {
+      steps {
+        step([$class: 'DockerComposeBuilder',
+              dockerComposeFile: 'test/docker-compose.yml',
+              option: [$class: 'ExecuteCommandInsideContainer',
+                       command: 'python ./check.py',
+                       index: 1,
+                       privilegedMode: false,
+                       service: 'python-tester',
+                       workDir: ''],
+              useCustomDockerComposeFile: true])
+      }
+    }
+    stage('Stop Test Environment') {
+      steps {
+        step([$class: 'DockerComposeBuilder',
+              dockerComposeFile: 'test/docker-compose.yml',
+              option: [$class: 'StopAllServices'],
+              useCustomDockerComposeFile: true])
+      }
+    }
+  }
+}
