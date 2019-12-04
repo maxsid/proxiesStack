@@ -13,11 +13,13 @@ pipeline {
         }
       }
       steps {
-        echo "--- Getting Go packages ---"
-        sh "go get github.com/PuerkitoBio/goquery"
-        sh "go get github.com/mediocregopher/radix"
-        echo "--- Build Go ---"
-        sh "go build -o '$BUILD_DIR/proxies-stack' ."
+        docker.image("golang:1.13.4").inside("-w /usr/local/go/src/github.com/maxsid/") {
+          echo "--- Getting Go packages ---"
+          sh "go get github.com/PuerkitoBio/goquery"
+          sh "go get github.com/mediocregopher/radix"
+          echo "--- Build Go ---"
+          sh "go build -o '$BUILD_DIR/proxies-stack' ."
+        }
       }
     }
     stage('Docker Build') {
