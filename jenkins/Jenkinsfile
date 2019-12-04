@@ -19,13 +19,15 @@ pipeline {
         sh "cd /go/src/github.com/maxsid/proxiesStack"
 
         echo "--- Build Go ---"
+        sh "ls -la"
         sh "go build -o '$BUILD_DIR/proxies-stack' ."
+
       }
     }
     stage('Docker Build') {
       steps {
         sh "ls -la"
-        sh "docker build -f docker/Dockerfile -t $DOCKER_REPOSITORY/proxies-stack:$BUILD_NUMBER '$BUILD_DIR'"
+        sh "docker build -f docker/Dockerfile -t $DOCKER_REPOSITORY/proxies-stack:build-$BUILD_NUMBER '$BUILD_DIR'"
       }
     }
     stage('Unit Test') {
