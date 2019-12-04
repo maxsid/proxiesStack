@@ -14,13 +14,12 @@ pipeline {
         sh "go get github.com/gorilla/mux"
 
         echo "--- Create Project Package ---"
-        sh "mkdir -p /go/src/github.com/maxsid"
-        sh "ln -s ${WORKSPACE} /go/src/github.com/maxsid/proxiesStack"
-        sh "cd /go/src/github.com/maxsid/proxiesStack"
+        sh "mkdir -p ${env.GOPATH}/src/github.com/maxsid"
+        sh "ln -s ${WORKSPACE} ${env.GOPATH}/src/github.com/maxsid/proxiesStack"
 
         echo "--- Build Go ---"
-        sh "ls -la"
         sh "go build -o '$BUILD_DIR/proxies-stack' ."
+        sh "ls -la"
 
       }
     }
@@ -39,9 +38,8 @@ pipeline {
         sh "go get github.com/gorilla/mux"
 
         echo "--- Create Project Package ---"
-        sh "mkdir -p /go/src/github.com/maxsid"
-        sh "ln -s ${WORKSPACE} /go/src/github.com/maxsid/proxiesStack"
-        sh "cd /go/src/github.com/maxsid/proxiesStack"
+        sh "mkdir -p ${env.GOPATH}/src/github.com/maxsid"
+        sh "ln -s ${WORKSPACE} ${env.GOPATH}/src/github.com/maxsid/proxiesStack"
 
         echo "--- Unit Test ---"
         sh "go test ./..."
