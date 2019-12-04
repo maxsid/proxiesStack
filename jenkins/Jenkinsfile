@@ -24,6 +24,7 @@ pipeline {
     }
     stage('Docker Build') {
       steps {
+        sh "ls -la"
         sh "docker build -f docker/Dockerfile -t $DOCKER_REPOSITORY/proxies-stack:$BUILD_NUMBER '$BUILD_DIR'"
       }
     }
