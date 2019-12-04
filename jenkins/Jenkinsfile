@@ -13,6 +13,7 @@ pipeline {
         sh "go get github.com/mediocregopher/radix"
         echo "--- Build Go ---"
         sh "go build -o '$BUILD_DIR/proxies-stack'"
+      }
     }
     stage('Docker Build') {
       steps {
@@ -40,13 +41,14 @@ pipeline {
               useCustomDockerComposeFile: true])
       }
     }
-    stage('Stop Test Environment') {
-      steps {
-        step([$class: 'DockerComposeBuilder',
-              dockerComposeFile: 'test/docker-compose.yml',
-              option: [$class: 'StopAllServices'],
-              useCustomDockerComposeFile: true])
-      }
+  }
+  post {
+    always {
+      echo "Stop Test Environment"
+      step([$class: 'DockerComposeBuilder',
+            dockerComposeFile: 'test/docker-compose.yml',
+            option: [$class: 'StopAllServices'],
+            useCustomDockerComposeFile: true])
     }
   }
 }
