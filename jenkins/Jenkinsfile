@@ -6,25 +6,36 @@ pipeline {
   }
   stages {
     stage('Build') {
-      agent {
-        docker {
-          image 'golang'
-          args '-w /usr/local/go/src/github.com/maxsid/'
-        }
-      }
+      agent { docker { image 'golang:1.13.4' } }
       steps {
-        docker.image("golang:1.13.4").inside("-w /usr/local/go/src/github.com/maxsid/") {
-          echo "--- Getting Go packages ---"
-          sh "go get github.com/PuerkitoBio/goquery"
-          sh "go get github.com/mediocregopher/radix"
-          echo "--- Build Go ---"
-          sh "go build -o '$BUILD_DIR/proxies-stack' ."
-        }
+        echo "--- Getting Go packages ---"
+        sh "go get github.com/PuerkitoBio/goquery"
+        sh "go get github.com/mediocregopher/radix"
+        echo "--- Create Project Package ---"
+        sh "mkdir -p ${GOPATH}/src/github.com/maxsid"
+        sh "ln -s ${WORKSPACE} ${GOPATH}/src/github.com/maxsid/proxiesStack"
+        sh "cd ${GOPATH}/src/github.com/maxsid/proxiesStack"
+        echo "--- Build Go ---"
+        sh "go build -o '$BUILD_DIR/proxies-stack' ."
       }
     }
     stage('Docker Build') {
       steps {
         sh "docker build -f docker/Dockerfile -t $DOCKER_REPOSITORY/proxies-stack:$BUILD_NUMBER '$BUILD_DIR'"
+      }
+    }
+    stage('Unit Test') {
+      agent { docker { image 'golang:1.13.4' } }
+      steps {
+        echo "--- Getting Go packages ---"
+        sh "go get github.com/PuerkitoBio/goquery"
+        sh "go get github.com/mediocregopher/radix"
+        echo "--- Create Project Package ---"
+        sh "mkdir -p ${GOPATH}/src/github.com/maxsid"
+        sh "ln -s ${WORKSPACE} ${GOPATH}/src/github.com/maxsid/proxiesStack"
+        sh "cd ${GOPATH}/src/github.com/maxsid/proxiesStack"
+        echo "--- Unit Test ---"
+        sh "go test ./..."
       }
     }
     stage('Run Test Environment') {
