@@ -6,7 +6,12 @@ pipeline {
   }
   stages {
     stage('Build') {
-      agent { docker { image 'golang' } }
+      agent {
+        docker {
+          image 'golang'
+          args '-w /usr/local/go/src/github.com/maxsid/'
+        }
+      }
       steps {
         echo "--- Getting Go packages ---"
         sh "go get github.com/PuerkitoBio/goquery"
