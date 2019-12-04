@@ -16,6 +16,7 @@ pipeline {
         echo "--- Create Project Package ---"
         sh "mkdir -p ${env.GOPATH}/src/github.com/maxsid"
         sh "ln -s ${WORKSPACE} ${env.GOPATH}/src/github.com/maxsid/proxiesStack"
+        sh "cd ${env.GOPATH}/src/github.com/maxsid/proxiesStack"
 
         echo "--- Build Go ---"
         sh "go build -o '$BUILD_DIR/proxies-stack' ."
@@ -40,6 +41,7 @@ pipeline {
         echo "--- Create Project Package ---"
         sh "mkdir -p ${env.GOPATH}/src/github.com/maxsid"
         sh "ln -s ${WORKSPACE} ${env.GOPATH}/src/github.com/maxsid/proxiesStack"
+        sh "cd ${env.GOPATH}/src/github.com/maxsid/proxiesStack"
 
         echo "--- Unit Test ---"
         sh "go test ./..."
